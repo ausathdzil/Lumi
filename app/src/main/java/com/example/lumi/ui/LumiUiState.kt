@@ -1,7 +1,7 @@
 package com.example.lumi.ui
 
-import com.example.lumi.data.Task
-import com.example.lumi.data.User
+import com.example.lumi.data.model.Task
+import com.example.lumi.data.model.User
 
 data class LumiUiState(
     val tasks: List<Task> = emptyList(),

@@ -1,62 +1,63 @@
 package com.example.lumi.ui
 
-import androidx.lifecycle.ViewModel
-import com.example.lumi.data.StatusType
-import com.example.lumi.data.Task
-import com.example.lumi.data.User
-import kotlinx.coroutines.flow.MutableStateFlow
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.lumi.data.local.AppDatabase
+import com.example.lumi.data.model.StatusType
+import com.example.lumi.data.model.Task
+import com.example.lumi.data.model.User
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.util.UUID
 
-class LumiViewModel : ViewModel() {
+class LumiViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _uiState = MutableStateFlow(LumiUiState())
-    val uiState: StateFlow<LumiUiState> = _uiState.asStateFlow()
+    private val taskDao = AppDatabase.getDatabase(application).taskDao()
 
-    fun addTask(title: String) {
+    private val userDao = AppDatabase.getDatabase(application).userDao()
+
+    val uiState: StateFlow<LumiUiState> = combine(
+        taskDao.getTasks(),
+        userDao.getUser()
+    ) { tasks, user ->
+        LumiUiState(tasks = tasks, user = user ?: User(name = "Guest"))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = LumiUiState()
+    )
+
+    fun addTask(title: String) = viewModelScope.launch {
         val newTask = Task(
             id = UUID.randomUUID().toString(),
             title = title,
             status = StatusType.TODO
         )
-        _uiState.update { currentState ->
-            currentState.copy(tasks = currentState.tasks + newTask)
-        }
+        taskDao.upsertTask(newTask)
     }
 
-    fun updateTask(taskId: String, newTitle: String, newStatus: StatusType) {
-        _uiState.update { currentState ->
-            val updatedTasks = currentState.tasks.map { task ->
-                if (task.id == taskId) {
-                    task.copy(title = newTitle, status = newStatus)
-                } else {
-                    task
-                }
-            }
-            currentState.copy(tasks = updatedTasks)
-        }
+    fun updateTask(taskId: String, newTitle: String, newStatus: StatusType) = viewModelScope.launch {
+        val updatedTask = Task(
+            id = taskId,
+            title = newTitle,
+            status = newStatus
+        )
+        taskDao.upsertTask(updatedTask)
     }
 
-    fun deleteTask(taskId: String) {
-        _uiState.update { currentState ->
-            val updatedTasks = currentState.tasks.filter { task -> task.id != taskId }
-            currentState.copy(tasks = updatedTasks)
-        }
+    fun deleteTask(taskId: String) = viewModelScope.launch {
+        taskDao.deleteTaskById(taskId)
     }
 
-    fun deleteAllCompleted() {
-        _uiState.update { currentState ->
-            val updatedTasks = currentState.tasks.filter { task -> task.status != StatusType.COMPLETED }
-            currentState.copy(tasks = updatedTasks)
-        }
+    fun deleteAllCompleted() = viewModelScope.launch {
+        taskDao.deleteAllCompleted()
     }
 
-    fun updateUser(name: String) {
-        val newUser = User(name = name)
-        _uiState.update { currentState ->
-            currentState.copy(user = newUser)
-        }
+    fun updateUser(name: String) = viewModelScope.launch {
+        userDao.upsertUser(User(name = name))
     }
 }

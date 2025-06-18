@@ -38,7 +38,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.lumi.data.StatusType
+import com.example.lumi.data.model.StatusType
 import com.example.lumi.ui.LumiHomeScreen
 import com.example.lumi.ui.LumiProfileScreen
 import com.example.lumi.ui.LumiViewModel

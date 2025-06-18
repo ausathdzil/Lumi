@@ -45,8 +45,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.lumi.R
-import com.example.lumi.data.StatusType
-import com.example.lumi.data.Task
+import com.example.lumi.data.model.StatusType
+import com.example.lumi.data.model.Task
 import kotlinx.coroutines.launch
 
 @Composable
