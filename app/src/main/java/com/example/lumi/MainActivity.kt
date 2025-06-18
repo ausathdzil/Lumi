@@ -100,6 +100,7 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
                     user = uiState.user,
                     onUpdateUser = lumiViewModel::updateUser,
                     onDeleteTask = lumiViewModel::deleteTask,
+                    onDeleteAllCompletedTask = lumiViewModel::deleteAllCompleted,
                     modifier = Modifier.fillMaxSize()
                 )
             }

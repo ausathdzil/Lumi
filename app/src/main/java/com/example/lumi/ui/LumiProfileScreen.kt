@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
@@ -46,6 +47,7 @@ fun LumiProfileScreen(
     user: User,
     onUpdateUser: (String) -> Unit,
     onDeleteTask: (Int) -> Unit,
+    onDeleteAllCompletedTask: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val completedTask = taskList.filter { it.status == StatusType.COMPLETED }
@@ -54,14 +56,15 @@ fun LumiProfileScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UpdateUserField(
             user = user,
             onUpdateUser = onUpdateUser,
         )
         HorizontalDivider()
-        Column {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.completed_tasks),
                 fontWeight = FontWeight.SemiBold,
@@ -73,6 +76,16 @@ fun LumiProfileScreen(
                     taskList.count { it.status == StatusType.COMPLETED }
                 )
             )
+        }
+        Button(
+            onClick = onDeleteAllCompletedTask,
+            enabled = completedTask.isNotEmpty(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            )
+        ) {
+            Text(stringResource(R.string.delete_all_completed))
         }
         if (completedTask.isEmpty()) {
             Column(
@@ -89,7 +102,7 @@ fun LumiProfileScreen(
                     tint = MaterialTheme.colorScheme.outline
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = stringResource(R.string.add_first_task))
+                Text(text = stringResource(R.string.complete_first_task))
             }
         } else {
             CompletedTaskList(
@@ -167,7 +180,7 @@ fun CompletedTaskList(
                     Text(
                         text = (task.title),
                         modifier = Modifier.weight(1f),
-                        textDecoration = TextDecoration.None
+                        textDecoration = TextDecoration.LineThrough
                     )
                     IconButton(onClick = { onDeleteTask(task.id) }) {
                         Icon(

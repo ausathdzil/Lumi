@@ -45,6 +45,13 @@ class LumiViewModel : ViewModel() {
         }
     }
 
+    fun deleteAllCompleted() {
+        _uiState.update { currentState ->
+            val updatedTasks = currentState.tasks.filter { task -> task.status != StatusType.COMPLETED }
+            currentState.copy(tasks = updatedTasks)
+        }
+    }
+
     fun updateUser(name: String) {
         val newUser = User(name = name)
         _uiState.update { currentState ->
