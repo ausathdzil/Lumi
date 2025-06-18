@@ -7,8 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
@@ -21,12 +19,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +43,7 @@ import com.example.lumi.ui.LumiHomeScreen
 import com.example.lumi.ui.LumiProfileScreen
 import com.example.lumi.ui.LumiViewModel
 import com.example.lumi.ui.theme.LumiTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,19 +70,23 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
         backStackEntry?.destination?.route ?: LumiScreen.Home.name
     )
 
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { LumiTopAppBar(currentScreen) },
         bottomBar = { LumiNavigationBar(navController) },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         val uiState by lumiViewModel.uiState.collectAsState()
+        val snackbarMessage = stringResource(R.string.name_updated)
 
         NavHost(
             navController = navController,
             startDestination = LumiScreen.Home.name,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
             composable(route = LumiScreen.Home.name) {
@@ -98,6 +104,11 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
                     taskList = uiState.tasks.filter { it.status == StatusType.COMPLETED },
                     user = uiState.user,
                     onUpdateUser = lumiViewModel::updateUser,
+                    onNameUpdated = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(snackbarMessage)
+                        }
+                    },
                     onDeleteTask = lumiViewModel::deleteTask,
                     onDeleteAllCompletedTask = lumiViewModel::deleteAllCompleted,
                     modifier = Modifier.fillMaxSize()

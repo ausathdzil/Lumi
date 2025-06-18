@@ -54,8 +54,8 @@ fun LumiHomeScreen(
     name: String,
     taskList: List<Task>,
     onAddTask: (String) -> Unit,
-    onUpdateTask: (Int, String, StatusType) -> Unit,
-    onDeleteTask: (Int) -> Unit,
+    onUpdateTask: (String, String, StatusType) -> Unit,
+    onDeleteTask: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -141,8 +141,8 @@ fun AddTaskField(
 @Composable
 fun TaskList(
     taskList: List<Task>,
-    onUpdateTask: (Int, String, StatusType) -> Unit,
-    onDeleteTask: (Int) -> Unit,
+    onUpdateTask: (String, String, StatusType) -> Unit,
+    onDeleteTask: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -204,7 +204,7 @@ fun TaskList(
 @Composable
 fun EditTaskBottomSheet(
     task: Task,
-    onUpdateTask: (Int, String, StatusType) -> Unit,
+    onUpdateTask: (String, String, StatusType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState()

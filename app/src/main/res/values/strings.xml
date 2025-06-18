@@ -17,4 +17,5 @@
     <string name="no_tasks_completed">%d tasks completed</string>
     <string name="delete_all_completed">Delete all completed tasks</string>
     <string name="complete_first_task">Complete your first task!</string>
+    <string name="name_updated">Name updated!</string>
 </resources>

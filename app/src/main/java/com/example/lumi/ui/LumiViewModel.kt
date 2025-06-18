@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 
 class LumiViewModel : ViewModel() {
 
@@ -16,7 +17,7 @@ class LumiViewModel : ViewModel() {
 
     fun addTask(title: String) {
         val newTask = Task(
-            id = _uiState.value.tasks.size + 1,
+            id = UUID.randomUUID().toString(),
             title = title,
             status = StatusType.TODO
         )
@@ -25,7 +26,7 @@ class LumiViewModel : ViewModel() {
         }
     }
 
-    fun updateTask(taskId: Int, newTitle: String, newStatus: StatusType) {
+    fun updateTask(taskId: String, newTitle: String, newStatus: StatusType) {
         _uiState.update { currentState ->
             val updatedTasks = currentState.tasks.map { task ->
                 if (task.id == taskId) {
@@ -38,7 +39,7 @@ class LumiViewModel : ViewModel() {
         }
     }
 
-    fun deleteTask(taskId: Int) {
+    fun deleteTask(taskId: String) {
         _uiState.update { currentState ->
             val updatedTasks = currentState.tasks.filter { task -> task.id != taskId }
             currentState.copy(tasks = updatedTasks)

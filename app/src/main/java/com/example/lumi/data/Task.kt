@@ -5,7 +5,7 @@ enum class StatusType {
 }
 
 data class Task(
-    val id: Int,
+    val id: String,
     val title: String,
     val status: StatusType,
 )

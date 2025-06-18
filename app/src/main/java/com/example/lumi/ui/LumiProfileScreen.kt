@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -46,7 +47,8 @@ fun LumiProfileScreen(
     taskList: List<Task>,
     user: User,
     onUpdateUser: (String) -> Unit,
-    onDeleteTask: (Int) -> Unit,
+    onNameUpdated: () -> Unit,
+    onDeleteTask: (String) -> Unit,
     onDeleteAllCompletedTask: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -61,7 +63,8 @@ fun LumiProfileScreen(
     ) {
         UpdateUserField(
             user = user,
-            onUpdateUser = onUpdateUser
+            onUpdateUser = onUpdateUser,
+            onNameUpdated = onNameUpdated
         )
         HorizontalDivider()
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -118,9 +121,11 @@ fun LumiProfileScreen(
 fun UpdateUserField(
     user: User,
     onUpdateUser: (String) -> Unit,
+    onNameUpdated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = modifier,
@@ -137,7 +142,9 @@ fun UpdateUserField(
         Button(
             onClick = {
                 if (name.isNotBlank()) {
+                    keyboardController?.hide()
                     onUpdateUser(name)
+                    onNameUpdated()
                     name = ""
                 }
             },
@@ -152,7 +159,7 @@ fun UpdateUserField(
 @Composable
 fun CompletedTaskList(
     taskList: List<Task>,
-    onDeleteTask: (Int) -> Unit,
+    onDeleteTask: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
