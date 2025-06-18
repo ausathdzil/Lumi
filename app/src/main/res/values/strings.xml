@@ -10,5 +10,9 @@
     <string name="delete_task">Delete task</string>
     <string name="task_title">Task title</string>
     <string name="update_task">Update task</string>
-    <string name="cancel">Cancel</string>"
+    <string name="cancel">Cancel</string>
+    <string name="name">Name</string>
+    <string name="update_name">Update name</string>
+    <string name="completed_tasks">Completed tasks</string>
+    <string name="no_tasks_completed">%d tasks completed</string>
 </resources>

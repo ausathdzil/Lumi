@@ -3,6 +3,7 @@ package com.example.lumi.ui
 import androidx.lifecycle.ViewModel
 import com.example.lumi.data.StatusType
 import com.example.lumi.data.Task
+import com.example.lumi.data.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,6 +42,13 @@ class LumiViewModel : ViewModel() {
         _uiState.update { currentState ->
             val updatedTasks = currentState.tasks.filter { task -> task.id != taskId }
             currentState.copy(tasks = updatedTasks)
+        }
+    }
+
+    fun updateUser(name: String) {
+        val newUser = User(name = name)
+        _uiState.update { currentState ->
+            currentState.copy(user = newUser)
         }
     }
 }

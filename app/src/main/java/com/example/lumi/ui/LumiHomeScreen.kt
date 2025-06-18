@@ -33,7 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,22 +43,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lumi.R
 import com.example.lumi.data.StatusType
 import com.example.lumi.data.Task
-import com.example.lumi.ui.theme.LumiTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun LumiHomeScreen(
+    name: String,
+    taskList: List<Task>,
+    onAddTask: (String) -> Unit,
+    onUpdateTask: (Int, String, StatusType) -> Unit,
+    onDeleteTask: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    lumiViewModel: LumiViewModel = viewModel()
 ) {
-    val lumiUiState by lumiViewModel.uiState.collectAsState()
-
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -68,13 +66,13 @@ fun LumiHomeScreen(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = stringResource(R.string.hello))
             Text(
-                text = "Ausath!",
+                text = name,
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.headlineSmall,
             )
         }
-        AddTaskField(onTaskAdd = { title -> lumiViewModel.addTask(title) })
-        if (lumiUiState.tasks.isEmpty()) {
+        AddTaskField(onAddTask = onAddTask)
+        if (taskList.isEmpty()) {
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center,
@@ -91,11 +89,9 @@ fun LumiHomeScreen(
             }
         } else {
             TaskList(
-                onUpdateTask = { taskId, newTitle, newStatus ->
-                    lumiViewModel.updateTask(taskId, newTitle, newStatus)
-                },
-                onDeleteTask = { taskId -> lumiViewModel.deleteTask(taskId) },
-                taskList = lumiUiState.tasks,
+                taskList = taskList,
+                onUpdateTask = onUpdateTask,
+                onDeleteTask = onDeleteTask,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -104,7 +100,7 @@ fun LumiHomeScreen(
 
 @Composable
 fun AddTaskField(
-    onTaskAdd: (String) -> Unit,
+    onAddTask: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var title by remember { mutableStateOf("") }
@@ -120,13 +116,14 @@ fun AddTaskField(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight(),
-            label = { Text(text = stringResource(R.string.add_new_task)) },
+            label = { Text(text = stringResource(R.string.task_title)) },
+            placeholder = { Text(text = stringResource(R.string.add_new_task)) },
             singleLine = true
         )
         Button(
             onClick = {
                 if (title.isNotBlank()) {
-                    onTaskAdd(title)
+                    onAddTask(title)
                     title = ""
                 }
             },
@@ -179,13 +176,12 @@ fun TaskList(
                     Text(
                         text = (task.title),
                         modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            textDecoration = if (task.status === StatusType.COMPLETED) {
-                                TextDecoration.LineThrough
-                            } else {
-                                TextDecoration.None
-                            }
-                        )
+                        style = MaterialTheme.typography.bodyLarge,
+                        textDecoration = if (task.status === StatusType.COMPLETED) {
+                            TextDecoration.LineThrough
+                        } else {
+                            TextDecoration.None
+                        }
                     )
                     EditTaskBottomSheet(
                         task = task,
@@ -283,13 +279,5 @@ fun EditTaskBottomSheet(
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun LumiHomeScreenPreview() {
-    LumiTheme {
-        LumiHomeScreen()
     }
 }

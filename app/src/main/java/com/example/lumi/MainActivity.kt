@@ -24,19 +24,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.lumi.data.StatusType
 import com.example.lumi.ui.LumiHomeScreen
 import com.example.lumi.ui.LumiProfileScreen
+import com.example.lumi.ui.LumiViewModel
 import com.example.lumi.ui.theme.LumiTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,12 +56,12 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class LumiScreen(@StringRes val title: Int) {
-    Home(title = R.string.app_name),
+    Home(title = R.string.home),
     Profile(title = R.string.profile)
 }
 
 @Composable
-fun LumiApp() {
+fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = LumiScreen.valueOf(
@@ -70,6 +74,8 @@ fun LumiApp() {
         bottomBar = { LumiNavigationBar(navController) },
         floatingActionButton = {  }
     ) { innerPadding ->
+        val uiState by lumiViewModel.uiState.collectAsState()
+
         NavHost(
             navController = navController,
             startDestination = LumiScreen.Home.name,
@@ -79,10 +85,23 @@ fun LumiApp() {
                 .padding(innerPadding)
         ) {
             composable(route = LumiScreen.Home.name) {
-                LumiHomeScreen(modifier = Modifier.fillMaxSize())
+                LumiHomeScreen(
+                    name = uiState.user.name,
+                    taskList = uiState.tasks,
+                    onAddTask = lumiViewModel::addTask,
+                    onUpdateTask = lumiViewModel::updateTask,
+                    onDeleteTask = lumiViewModel::deleteTask,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             composable(route = LumiScreen.Profile.name) {
-                LumiProfileScreen(modifier = Modifier.fillMaxSize())
+                LumiProfileScreen(
+                    taskList = uiState.tasks.filter { it.status == StatusType.COMPLETED  },
+                    user = uiState.user,
+                    onUpdateUser = lumiViewModel::updateUser,
+                    onDeleteTask = lumiViewModel::deleteTask,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
