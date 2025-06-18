@@ -2,4 +2,13 @@
     <string name="app_name">Lumi</string>
     <string name="profile">Profile</string>
     <string name="home">Home</string>
+    <string name="hello">Hello,</string>
+    <string name="add_first_task">Add your first task!</string>
+    <string name="add_new_task">Add new task…</string>
+    <string name="add_task">Add task</string>
+    <string name="edit_task">Edit task</string>
+    <string name="delete_task">Delete task</string>
+    <string name="task_title">Task title</string>
+    <string name="update_task">Update task</string>
+    <string name="cancel">Cancel</string>"
 </resources>

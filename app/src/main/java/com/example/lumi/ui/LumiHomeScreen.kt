@@ -6,43 +6,52 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lumi.R
 import com.example.lumi.data.StatusType
 import com.example.lumi.data.Task
 import com.example.lumi.ui.theme.LumiTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun LumiHomeScreen(
@@ -57,7 +66,7 @@ fun LumiHomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Hello,")
+            Text(text = stringResource(R.string.hello))
             Text(
                 text = "Ausath!",
                 fontWeight = FontWeight.SemiBold,
@@ -78,11 +87,11 @@ fun LumiHomeScreen(
                     tint = MaterialTheme.colorScheme.outline
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Add your first task!")
+                Text(text = stringResource(R.string.add_first_task))
             }
         } else {
             TaskList(
-                onStatusChange = { taskId, newTitle, newStatus ->
+                onUpdateTask = { taskId, newTitle, newStatus ->
                     lumiViewModel.updateTask(taskId, newTitle, newStatus)
                 },
                 onDeleteTask = { taskId -> lumiViewModel.deleteTask(taskId) },
@@ -111,7 +120,7 @@ fun AddTaskField(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight(),
-            label = { Text(text = "Add new task...") },
+            label = { Text(text = stringResource(R.string.add_new_task)) },
             singleLine = true
         )
         Button(
@@ -126,7 +135,7 @@ fun AddTaskField(
         ) {
             Icon(
                 Icons.Filled.Add,
-                contentDescription = "Add task"
+                contentDescription = stringResource(R.string.add_task)
             )
         }
     }
@@ -135,7 +144,7 @@ fun AddTaskField(
 @Composable
 fun TaskList(
     taskList: List<Task>,
-    onStatusChange: (Int, String, StatusType) -> Unit,
+    onUpdateTask: (Int, String, StatusType) -> Unit,
     onDeleteTask: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -160,7 +169,7 @@ fun TaskList(
                     Checkbox(
                         checked = task.status == StatusType.COMPLETED,
                         onCheckedChange = { isChecked ->
-                            onStatusChange(
+                            onUpdateTask(
                                 task.id,
                                 task.title,
                                 if (isChecked) StatusType.COMPLETED else StatusType.TODO
@@ -178,19 +187,98 @@ fun TaskList(
                             }
                         )
                     )
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Outlined.Edit,
-                            contentDescription = "Edit task",
-                            tint = MaterialTheme.colorScheme.outline
-                        )
-                    }
+                    EditTaskBottomSheet(
+                        task = task,
+                        onUpdateTask = onUpdateTask
+                    )
                     IconButton(onClick = { onDeleteTask(task.id) }) {
                         Icon(
                             Icons.Outlined.Delete,
-                            contentDescription = "Delete task",
+                            contentDescription = stringResource(R.string.delete_task),
                             tint = MaterialTheme.colorScheme.outline
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditTaskBottomSheet(
+    task: Task,
+    onUpdateTask: (Int, String, StatusType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    var title by remember { mutableStateOf(task.title) }
+
+    IconButton(onClick = { showBottomSheet = true }) {
+        Icon(
+            Icons.Outlined.Edit,
+            contentDescription = stringResource(R.string.edit_task),
+            tint = MaterialTheme.colorScheme.outline
+        )
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            modifier = modifier,
+            sheetState = sheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.edit_task),
+                    fontWeight = FontWeight.SemiBold
+                )
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = stringResource(R.string.task_title)) },
+                    singleLine = true
+                )
+                Column {
+                    Button(
+                        onClick = {
+                            onUpdateTask(task.id, title, task.status)
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                if (!sheetState.isVisible) {
+                                    showBottomSheet = false
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.update_task))
+                    }
+                    Button(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                if (!sheetState.isVisible) {
+                                    showBottomSheet = false
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary
+                        ),
+                    ) {
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             }
