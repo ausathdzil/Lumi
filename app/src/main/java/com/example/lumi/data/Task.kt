@@ -1,5 +1,7 @@
 package com.example.lumi.data
 
+import androidx.annotation.StringRes
+
 enum class StatusType {
     TODO, COMPLETED
 }
