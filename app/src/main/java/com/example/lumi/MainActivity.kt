@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -72,7 +72,6 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
         modifier = Modifier.fillMaxSize(),
         topBar = { LumiTopAppBar(currentScreen) },
         bottomBar = { LumiNavigationBar(navController) },
-        floatingActionButton = {  }
     ) { innerPadding ->
         val uiState by lumiViewModel.uiState.collectAsState()
 
@@ -96,7 +95,7 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
             }
             composable(route = LumiScreen.Profile.name) {
                 LumiProfileScreen(
-                    taskList = uiState.tasks.filter { it.status == StatusType.COMPLETED  },
+                    taskList = uiState.tasks.filter { it.status == StatusType.COMPLETED },
                     user = uiState.user,
                     onUpdateUser = lumiViewModel::updateUser,
                     onDeleteTask = lumiViewModel::deleteTask,
@@ -150,12 +149,12 @@ fun LumiNavigationBar(
                         imageVector = if (isSelected) {
                             when (screen) {
                                 LumiScreen.Home -> Icons.Filled.Home
-                                LumiScreen.Profile -> Icons.Filled.Person
+                                LumiScreen.Profile -> Icons.Filled.AccountCircle
                             }
                         } else {
                             when (screen) {
                                 LumiScreen.Home -> Icons.Outlined.Home
-                                LumiScreen.Profile -> Icons.Outlined.Person
+                                LumiScreen.Profile -> Icons.Outlined.AccountCircle
                             }
                         },
                         contentDescription = stringResource(screen.title)

@@ -61,7 +61,7 @@ fun LumiProfileScreen(
     ) {
         UpdateUserField(
             user = user,
-            onUpdateUser = onUpdateUser,
+            onUpdateUser = onUpdateUser
         )
         HorizontalDivider()
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -141,7 +141,8 @@ fun UpdateUserField(
                     name = ""
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = name.isNotBlank()
         ) {
             Text(stringResource(R.string.update_name))
         }
@@ -175,7 +176,7 @@ fun CompletedTaskList(
                     Checkbox(
                         checked = task.status == StatusType.COMPLETED,
                         onCheckedChange = { },
-                        enabled = false,
+                        enabled = false
                     )
                     Text(
                         text = (task.title),

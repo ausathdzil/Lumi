@@ -68,7 +68,7 @@ fun LumiHomeScreen(
             Text(
                 text = name,
                 fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineSmall
             )
         }
         AddTaskField(onAddTask = onAddTask)
@@ -128,7 +128,7 @@ fun AddTaskField(
                 }
             },
             modifier = Modifier.fillMaxHeight(),
-            enabled = title.isNotBlank(),
+            enabled = title.isNotBlank()
         ) {
             Icon(
                 Icons.Filled.Add,
