@@ -90,6 +90,7 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
         ) {
             composable(route = LumiScreen.Home.name) {
                 LumiHomeScreen(
+                    name = uiState.user.name,
                     taskList = uiState.tasks,
                     onAddTask = lumiViewModel::addTask,
                     onUpdateTask = lumiViewModel::updateTask,

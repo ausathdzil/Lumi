@@ -28,14 +28,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,15 +51,32 @@ import com.example.lumi.data.model.StatusType
 import com.example.lumi.data.model.Task
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LumiHomeScreen(
+    name: String,
     taskList: List<Task>,
     onAddTask: (String) -> Unit,
     onUpdateTask: (String, String, StatusType) -> Unit,
     onDeleteTask: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    val tabs = listOf(
+        stringResource(R.string.all),
+        stringResource(R.string.active),
+        stringResource(R.string.completed)
+    )
+
+    val activeTask = taskList.filter { it.status == StatusType.TODO }
     val completedTask = taskList.filter { it.status == StatusType.COMPLETED }
+
+    val filteredTask = when (selectedTabIndex) {
+        1 -> activeTask
+        2 -> completedTask
+        else -> taskList
+    }
+
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -63,7 +84,7 @@ fun LumiHomeScreen(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = stringResource(R.string.my_tasks),
+                text = stringResource(R.string.name_tasks, name),
                 style = MaterialTheme.typography.headlineMedium
             )
             Text(
@@ -75,7 +96,16 @@ fun LumiHomeScreen(
             )
         }
         AddTaskField(onAddTask = onAddTask)
-        if (taskList.isEmpty()) {
+        SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(text = title) }
+                )
+            }
+        }
+        if (filteredTask.isEmpty()) {
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center,
@@ -88,11 +118,11 @@ fun LumiHomeScreen(
                     tint = MaterialTheme.colorScheme.outline
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = stringResource(R.string.add_first_task))
+                Text(text = stringResource(R.string.no_tasks_yet))
             }
         } else {
             TaskList(
-                taskList = taskList,
+                taskList = filteredTask,
                 onUpdateTask = onUpdateTask,
                 onDeleteTask = onDeleteTask,
                 modifier = Modifier.weight(1f)

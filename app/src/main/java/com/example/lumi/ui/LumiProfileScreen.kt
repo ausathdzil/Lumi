@@ -109,7 +109,7 @@ fun LumiProfileScreen(
                     tint = MaterialTheme.colorScheme.outline
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = stringResource(R.string.complete_first_task))
+                Text(text = stringResource(R.string.no_tasks_yet))
             }
         } else {
             CompletedTaskList(
