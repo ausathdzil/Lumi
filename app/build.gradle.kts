@@ -53,9 +53,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.text.google.fonts)
 
-    implementation("androidx.room:room-runtime:2.7.1")
-    ksp("androidx.room:room-compiler:2.7.1")
-    implementation("androidx.room:room-ktx:2.7.1")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
