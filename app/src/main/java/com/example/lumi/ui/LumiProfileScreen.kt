@@ -16,13 +16,12 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -34,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.lumi.R
@@ -44,8 +42,8 @@ import com.example.lumi.data.model.User
 
 @Composable
 fun LumiProfileScreen(
-    taskList: List<Task>,
     user: User,
+    taskList: List<Task>,
     onUpdateUser: (String) -> Unit,
     onNameUpdated: () -> Unit,
     onDeleteTask: (String) -> Unit,
@@ -61,6 +59,12 @@ fun LumiProfileScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Column {
+            Text(
+                text = user.name,
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
         UpdateUserField(
             user = user,
             onUpdateUser = onUpdateUser,
@@ -70,7 +74,6 @@ fun LumiProfileScreen(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(R.string.completed_tasks),
-                fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.headlineMedium
             )
             Text(
@@ -79,16 +82,17 @@ fun LumiProfileScreen(
                     taskList.count { it.status == StatusType.COMPLETED }
                 )
             )
-        }
-        Button(
-            onClick = onDeleteAllCompletedTask,
-            enabled = completedTask.isNotEmpty(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError
-            )
-        ) {
-            Text(stringResource(R.string.delete_all_completed))
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = onDeleteAllCompletedTask,
+                enabled = completedTask.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
+                )
+            ) {
+                Text(stringResource(R.string.delete_all_completed))
+            }
         }
         if (completedTask.isEmpty()) {
             Column(
@@ -151,7 +155,7 @@ fun UpdateUserField(
             modifier = Modifier.fillMaxWidth(),
             enabled = name.isNotBlank()
         ) {
-            Text(stringResource(R.string.update_name))
+            Text(stringResource(R.string.update))
         }
     }
 }
@@ -170,12 +174,7 @@ fun CompletedTaskList(
             items = taskList,
             key = { task -> task.id }
         ) { task ->
-            OutlinedCard(
-                modifier = modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                )
-            ) {
+            ElevatedCard(modifier = modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -188,6 +187,7 @@ fun CompletedTaskList(
                     Text(
                         text = (task.title),
                         modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.surfaceDim,
                         textDecoration = TextDecoration.LineThrough
                     )
                     IconButton(onClick = { onDeleteTask(task.id) }) {

@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -32,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -90,14 +87,9 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }
         ) {
             composable(route = LumiScreen.Home.name) {
                 LumiHomeScreen(
-                    name = uiState.user.name,
                     taskList = uiState.tasks,
                     onAddTask = lumiViewModel::addTask,
                     onUpdateTask = lumiViewModel::updateTask,
@@ -107,12 +99,15 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
             }
             composable(route = LumiScreen.Profile.name) {
                 LumiProfileScreen(
-                    taskList = uiState.tasks.filter { it.status == StatusType.COMPLETED },
                     user = uiState.user,
+                    taskList = uiState.tasks.filter { it.status == StatusType.COMPLETED },
                     onUpdateUser = lumiViewModel::updateUser,
                     onNameUpdated = {
                         scope.launch {
-                            snackbarHostState.showSnackbar(snackbarMessage)
+                            snackbarHostState.showSnackbar(
+                                message = snackbarMessage,
+                                withDismissAction = true
+                            )
                         }
                     },
                     onDeleteTask = lumiViewModel::deleteTask,
@@ -131,12 +126,7 @@ fun LumiTopAppBar(
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = stringResource(currentScreen.title),
-                fontWeight = FontWeight.SemiBold
-            )
-        },
+        title = { Text(text = stringResource(currentScreen.title)) },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),

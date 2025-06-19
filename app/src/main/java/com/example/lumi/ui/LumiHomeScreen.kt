@@ -21,14 +21,13 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -41,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.lumi.R
@@ -51,24 +49,29 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LumiHomeScreen(
-    name: String,
     taskList: List<Task>,
     onAddTask: (String) -> Unit,
     onUpdateTask: (String, String, StatusType) -> Unit,
     onDeleteTask: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val completedTask = taskList.filter { it.status == StatusType.COMPLETED }
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = stringResource(R.string.hello))
             Text(
-                text = name,
-                fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.headlineSmall
+                text = stringResource(R.string.my_tasks),
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                text = stringResource(
+                    R.string.no_tasks_no_completed,
+                    taskList.size,
+                    completedTask.size
+                )
             )
         }
         AddTaskField(onAddTask = onAddTask)
@@ -116,7 +119,7 @@ fun AddTaskField(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight(),
-            label = { Text(text = stringResource(R.string.task_title)) },
+            label = { Text(text = stringResource(R.string.task)) },
             placeholder = { Text(text = stringResource(R.string.add_new_task)) },
             singleLine = true
         )
@@ -153,12 +156,7 @@ fun TaskList(
             items = taskList,
             key = { task -> task.id }
         ) { task ->
-            OutlinedCard(
-                modifier = modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                )
-            ) {
+            ElevatedCard(modifier = modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier.padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -176,6 +174,11 @@ fun TaskList(
                     Text(
                         text = (task.title),
                         modifier = Modifier.weight(1f),
+                        color = if (task.status === StatusType.COMPLETED) {
+                            MaterialTheme.colorScheme.surfaceDim
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         textDecoration = if (task.status === StatusType.COMPLETED) {
                             TextDecoration.LineThrough
@@ -237,13 +240,13 @@ fun EditTaskBottomSheet(
             ) {
                 Text(
                     text = stringResource(R.string.edit_task),
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.headlineSmall
                 )
                 TextField(
                     value = title,
                     onValueChange = { title = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(R.string.task_title)) },
+                    label = { Text(text = stringResource(R.string.task)) },
                     singleLine = true
                 )
                 Column {
@@ -258,7 +261,7 @@ fun EditTaskBottomSheet(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(stringResource(R.string.update_task))
+                        Text(stringResource(R.string.update))
                     }
                     Button(
                         onClick = {
