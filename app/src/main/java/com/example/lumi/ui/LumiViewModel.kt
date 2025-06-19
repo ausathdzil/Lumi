@@ -35,18 +35,21 @@ class LumiViewModel(application: Application) : AndroidViewModel(application) {
         val newTask = Task(
             id = UUID.randomUUID().toString(),
             title = title,
-            status = StatusType.TODO
+            status = StatusType.TODO,
+            dateCreated = System.currentTimeMillis()
         )
         taskDao.upsertTask(newTask)
     }
 
     fun updateTask(taskId: String, newTitle: String, newStatus: StatusType) = viewModelScope.launch {
-        val updatedTask = Task(
-            id = taskId,
-            title = newTitle,
-            status = newStatus
-        )
-        taskDao.upsertTask(updatedTask)
+        val originalTask = taskDao.getTaskById(taskId)
+        if (originalTask != null) {
+            val updatedTask = originalTask.copy(
+                title = newTitle,
+                status = newStatus
+            )
+            taskDao.upsertTask(updatedTask)
+        }
     }
 
     fun deleteTask(taskId: String) = viewModelScope.launch {

@@ -13,4 +13,5 @@ data class Task(
     val id: String,
     val title: String,
     val status: StatusType,
+    val dateCreated: Long,
 )

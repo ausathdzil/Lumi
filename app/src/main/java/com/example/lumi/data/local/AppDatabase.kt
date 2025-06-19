@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.example.lumi.data.model.Task
 import com.example.lumi.data.model.User
 
-@Database(entities = [Task::class, User::class], version = 2, exportSchema = false)
+@Database(entities = [Task::class, User::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
