@@ -7,6 +7,7 @@ import com.example.lumi.data.local.AppDatabase
 import com.example.lumi.data.model.StatusType
 import com.example.lumi.data.model.Task
 import com.example.lumi.data.model.User
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -17,14 +18,20 @@ import java.util.UUID
 class LumiViewModel(application: Application) : AndroidViewModel(application) {
 
     private val taskDao = AppDatabase.getDatabase(application).taskDao()
-
     private val userDao = AppDatabase.getDatabase(application).userDao()
+
+    private val _snackbarMessage = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<LumiUiState> = combine(
         taskDao.getTasks(),
-        userDao.getUser()
-    ) { tasks, user ->
-        LumiUiState(tasks = tasks, user = user ?: User(name = "Guest"))
+        userDao.getUser(),
+        _snackbarMessage
+    ) { tasks, user, snackbarMessage ->
+        LumiUiState(
+            tasks = tasks,
+            user = user ?: User(name = "Guest"),
+            snackbarMessage = snackbarMessage
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -62,5 +69,10 @@ class LumiViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateUser(name: String) = viewModelScope.launch {
         userDao.upsertUser(User(name = name))
+        _snackbarMessage.value = "Name updated!"
+    }
+
+    fun snackbarMessageShow() {
+        _snackbarMessage.value = null
     }
 }

@@ -71,10 +71,12 @@ fun LumiHomeScreen(
     val activeTask = taskList.filter { it.status == StatusType.TODO }
     val completedTask = taskList.filter { it.status == StatusType.COMPLETED }
 
-    val filteredTask = when (selectedTabIndex) {
-        1 -> activeTask
-        2 -> completedTask
-        else -> taskList
+    val filteredTask = remember(selectedTabIndex, taskList) {
+        when (selectedTabIndex) {
+            1 -> activeTask
+            2 -> completedTask
+            else -> taskList
+        }
     }
 
     Column(

@@ -24,10 +24,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,7 +42,6 @@ import com.example.lumi.ui.LumiHomeScreen
 import com.example.lumi.ui.LumiProfileScreen
 import com.example.lumi.ui.LumiViewModel
 import com.example.lumi.ui.theme.LumiTheme
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,8 +68,18 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
         backStackEntry?.destination?.route ?: LumiScreen.Home.name
     )
 
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val uiState by lumiViewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.snackbarMessage) {
+        uiState.snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                withDismissAction = true
+            )
+            lumiViewModel.snackbarMessageShow()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -78,9 +87,6 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
         bottomBar = { LumiNavigationBar(navController) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        val uiState by lumiViewModel.uiState.collectAsState()
-        val snackbarMessage = stringResource(R.string.name_updated)
-
         NavHost(
             navController = navController,
             startDestination = LumiScreen.Home.name,
@@ -103,14 +109,6 @@ fun LumiApp(lumiViewModel: LumiViewModel = viewModel()) {
                     user = uiState.user,
                     taskList = uiState.tasks.filter { it.status == StatusType.COMPLETED },
                     onUpdateUser = lumiViewModel::updateUser,
-                    onNameUpdated = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = snackbarMessage,
-                                withDismissAction = true
-                            )
-                        }
-                    },
                     onDeleteTask = lumiViewModel::deleteTask,
                     onDeleteAllCompletedTask = lumiViewModel::deleteAllCompleted,
                     modifier = Modifier.fillMaxSize()

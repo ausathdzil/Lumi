@@ -45,7 +45,6 @@ fun LumiProfileScreen(
     user: User,
     taskList: List<Task>,
     onUpdateUser: (String) -> Unit,
-    onNameUpdated: () -> Unit,
     onDeleteTask: (String) -> Unit,
     onDeleteAllCompletedTask: () -> Unit,
     modifier: Modifier = Modifier
@@ -68,7 +67,6 @@ fun LumiProfileScreen(
         UpdateUserField(
             user = user,
             onUpdateUser = onUpdateUser,
-            onNameUpdated = onNameUpdated
         )
         HorizontalDivider()
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -125,7 +123,6 @@ fun LumiProfileScreen(
 fun UpdateUserField(
     user: User,
     onUpdateUser: (String) -> Unit,
-    onNameUpdated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
@@ -148,7 +145,6 @@ fun UpdateUserField(
                 if (name.isNotBlank()) {
                     keyboardController?.hide()
                     onUpdateUser(name)
-                    onNameUpdated()
                     name = ""
                 }
             },
