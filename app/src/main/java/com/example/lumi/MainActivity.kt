@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-enum class LumiScreen(@StringRes val title: Int) {
+enum class LumiScreen(@param:StringRes val title: Int) {
     Home(title = R.string.home),
     Profile(title = R.string.profile)
 }
